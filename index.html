@@ -58,6 +58,22 @@
         <video id="input_video"></video>
         <div id="status">Waiting for code...</div>
     </div>
+    <script>
+        const videoElement = document.getElementById('input_video');
+        const statusText = document.getElementById('status');
+
+        // Camera Setup using MediaPipe Utils
+        const camera = new Camera(videoElement, {
+            onFrame: async () => {
+                // We will add face detection here later
+            },
+            width: 480,
+            height: 360
+        });
+        camera.start();
+
+        statusText.innerText = "Camera Started...";
+    </script>
 </body>
 
 </html>
