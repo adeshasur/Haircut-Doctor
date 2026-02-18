@@ -62,17 +62,35 @@
         const videoElement = document.getElementById('input_video');
         const statusText = document.getElementById('status');
 
-        // Camera Setup using MediaPipe Utils
+        // AI Logic
+        function onResults(results) {
+            if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+                const landmarks = results.multiFaceLandmarks[0];
+
+                // Math: Calculate Face Ratio (Length / Width)
+                const faceWidth = Math.abs(landmarks[234].x - landmarks[454].x);
+                const faceHeight = Math.abs(landmarks[10].y - landmarks[152].y);
+                const ratio = faceHeight / faceWidth;
+
+                let shape = "Round";
+                if (ratio > 1.5) shape = "Oblong";
+                else if (ratio > 1.35) shape = "Oval";
+                else if (ratio < 1.15) shape = "Square";
+
+                statusText.innerText = `Face Detected: ${shape}`;
+            }
+        }
+
+        // Load the FaceMesh Model
+        const faceMesh = new FaceMesh({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}` });
+        faceMesh.setOptions({ maxNumFaces: 1, refineLandmarks: true, minDetectionConfidence: 0.5 });
+        faceMesh.onResults(onResults);
+
         const camera = new Camera(videoElement, {
-            onFrame: async () => {
-                // We will add face detection here later
-            },
-            width: 480,
-            height: 360
+            onFrame: async () => { await faceMesh.send({ image: videoElement }); },
+            width: 480, height: 360
         });
         camera.start();
-
-        statusText.innerText = "Camera Started...";
     </script>
 </body>
 
