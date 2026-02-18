@@ -114,6 +114,7 @@
                 else if (ratio < 1.15) shape = "Square";
 
                 statusText.innerText = `Face Detected: ${shape}`;
+                dropRecommendations(shape);
             }
         }
 
@@ -127,6 +128,36 @@
             width: 480, height: 360
         });
         camera.start();
+
+        function dropRecommendations(faceShape) {
+            // Simple Logic to drop boxes only once
+            if (window.dropped) return;
+            window.dropped = true;
+
+            const colors = ["#e74c3c", "#3498db", "#f1c40f", "#2ecc71", "#9b59b6"];
+
+            for (let i = 0; i < 5; i++) {
+                let box = Bodies.rectangle(
+                    Math.random() * window.innerWidth, // Random X position
+                    -200 - (i * 100), // Start above screen
+                    200, 60,
+                    {
+                        restitution: 0.9, // Bounciness
+                        render: { fillStyle: colors[i] }
+                    }
+                );
+                Composite.add(world, box);
+            }
+
+            // Add Mouse Control
+            const mouse = Mouse.create(render.canvas);
+            const mouseConstraint = MouseConstraint.create(engine, {
+                mouse: mouse,
+                constraint: { stiffness: 0.2, render: { visible: false } }
+            });
+            Composite.add(world, mouseConstraint);
+            render.mouse = mouse;
+        }
     </script>
 </body>
 
